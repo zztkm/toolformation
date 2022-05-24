@@ -1,59 +1,47 @@
 package toolformation
 
 import (
-	"bufio"
 	"fmt"
 	"io/ioutil"
-	"os/exec"
 
 	"github.com/goark/errs"
 	"github.com/goccy/go-yaml"
 )
 
+// Homebrew
 type Homebrew struct {
-	formula []string
-	cask    []string
+	Formula []string
+	Cask    []string
 }
 
+// ToolFormation
 type ToolFormation struct {
 	PackageManager string `yaml:"package-manager"`
 	Homebrew       `yaml:"homebrew"`
 }
 
-func execute(cmd string) int {
-	c := exec.Command("/bin/bash", "-c", cmd)
-	stderr, _ := c.StderrPipe()
-	c.Start()
-
-	scanner := bufio.NewScanner(stderr)
-	for scanner.Scan() {
-		msg := scanner.Text()
-		fmt.Println(msg)
-	}
-	c.Wait()
-
-	return c.ProcessState.ExitCode()
-}
-
-func (h *Homebrew) Execute() {
-	for i := 0; i < len(h.formula); i++ {
-		cmd := fmt.Sprintf("brew install %s", h.formula[i])
-		code := execute(cmd)
-		if code != 0 {
-			fmt.Printf("Installation of %s[formula] failed\n", h.formula[i])
+func (h *Homebrew) Install() {
+	for i := 0; i < len(h.Formula); i++ {
+		cmd := fmt.Sprintf("brew install %s", h.Formula[i])
+		err := RunCommand(cmd)
+		if err != nil {
+			fmt.Printf("Installation of %s[formula] failed\n", h.Formula[i])
+			fmt.Println(err)
 		}
 	}
 
-	for i := 0; i < len(h.cask); i++ {
-		cmd := fmt.Sprintf("brew install %s", h.cask[i])
-		code := execute(cmd)
-		if code != 0 {
-			fmt.Printf("Installation of %s[cask] failed\n", h.formula[i])
+	for i := 0; i < len(h.Cask); i++ {
+		cmd := fmt.Sprintf("brew install %s", h.Cask[i])
+		err := RunCommand(cmd)
+		if err != nil {
+			fmt.Printf("Installation of %s[cask] failed\n", h.Cask[i])
+			fmt.Println(err)
 		}
 	}
 }
 
-func ReadConfig(path string) (*ToolFormation, error) {
+//
+func New(path string) (*ToolFormation, error) {
 	b, err := ioutil.ReadFile(path)
 	if err != nil {
 		return &ToolFormation{}, errs.Wrap(err)
@@ -66,9 +54,9 @@ func ReadConfig(path string) (*ToolFormation, error) {
 	return &t, nil
 }
 
-func (t *ToolFormation) Execute() {
+func (t *ToolFormation) Install() {
 
 	if t.PackageManager == "homebrew" {
-		t.Homebrew.Execute()
+		t.Homebrew.Install()
 	}
 }

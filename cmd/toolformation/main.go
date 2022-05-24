@@ -7,9 +7,9 @@ import (
 )
 
 func main() {
-	t, err := toolformation.ReadConfig("toolformation.yml")
+	t, err := toolformation.New("toolformation.yml")
 	if err != nil {
 		log.Fatal(err)
 	}
-	t.Execute()
+	t.Install()
 }
