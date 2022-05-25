@@ -3,15 +3,18 @@ package toolformation
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
+	"os/exec"
 
+	"github.com/fatih/color"
 	"github.com/goark/errs"
 	"github.com/goccy/go-yaml"
 )
 
 // Homebrew
 type Homebrew struct {
-	Formula []string
-	Cask    []string
+	Formula []string `yaml:"formula"`
+	Cask    []string `yaml:"cask"`
 }
 
 // ToolFormation
@@ -20,6 +23,19 @@ type ToolFormation struct {
 	Homebrew       `yaml:"homebrew"`
 }
 
+// check return `type name` exit code
+func check(name string) int {
+	s := fmt.Sprintf("type %s", name)
+	cmd := exec.Command("/bin/bash", "-c", s)
+	err := cmd.Run()
+	if err != nil {
+		return 1
+	}
+
+	return cmd.ProcessState.ExitCode()
+}
+
+// Install homwbrew
 func (h *Homebrew) Install() {
 	for i := 0; i < len(h.Formula); i++ {
 		cmd := fmt.Sprintf("brew install %s", h.Formula[i])
@@ -31,7 +47,7 @@ func (h *Homebrew) Install() {
 	}
 
 	for i := 0; i < len(h.Cask); i++ {
-		cmd := fmt.Sprintf("brew install %s", h.Cask[i])
+		cmd := fmt.Sprintf("brew install --cask %s", h.Cask[i])
 		err := RunCommand(cmd)
 		if err != nil {
 			fmt.Printf("Installation of %s[cask] failed\n", h.Cask[i])
@@ -40,7 +56,27 @@ func (h *Homebrew) Install() {
 	}
 }
 
-//
+// Uninstall homwbrew
+func (h *Homebrew) Uninstall() {
+	for i := 0; i < len(h.Formula); i++ {
+		cmd := fmt.Sprintf("brew uninstall %s", h.Formula[i])
+		err := RunCommand(cmd)
+		if err != nil {
+			fmt.Printf("Uninstallation of %s[formula] failed\n", h.Formula[i])
+			fmt.Println(err)
+		}
+	}
+
+	for i := 0; i < len(h.Cask); i++ {
+		cmd := fmt.Sprintf("brew uninstall %s", h.Cask[i])
+		err := RunCommand(cmd)
+		if err != nil {
+			fmt.Printf("Uninstallation of %s[cask] failed\n", h.Cask[i])
+			fmt.Println(err)
+		}
+	}
+}
+
 func New(path string) (*ToolFormation, error) {
 	b, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -55,8 +91,20 @@ func New(path string) (*ToolFormation, error) {
 }
 
 func (t *ToolFormation) Install() {
-
 	if t.PackageManager == "homebrew" {
+		if code := check("brew"); code != 0 {
+			fmt.Println("homebrew was not installed")
+			err := RunCommand("curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh")
+			if err != nil {
+				color.Red("Failed to install homebrew")
+				os.Exit(1)
+			}
+		}
 		t.Homebrew.Install()
+	} else {
+		color.HiBlue("Currently only `homebrew` is supported")
+		color.HiBlue("Please send me an issue or pr!")
+		color.HiBlue("https://github.com/zztkm/toolformation/issues")
+		os.Exit(1)
 	}
 }
