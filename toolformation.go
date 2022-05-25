@@ -3,7 +3,6 @@ package toolformation
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 	"os/exec"
 
 	"github.com/fatih/color"
@@ -93,18 +92,15 @@ func New(path string) (*ToolFormation, error) {
 func (t *ToolFormation) Install() {
 	if t.PackageManager == "homebrew" {
 		if code := check("brew"); code != 0 {
-			fmt.Println("homebrew was not installed")
-			err := RunCommand("curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh")
-			if err != nil {
-				color.Red("Failed to install homebrew")
-				os.Exit(1)
-			}
+			color.Red("homebrew was not installed")
+			color.Blue("See: https://brew.sh/")
+			return
 		}
 		t.Homebrew.Install()
 	} else {
 		color.HiBlue("Currently only `homebrew` is supported")
 		color.HiBlue("Please send me an issue or pr!")
 		color.HiBlue("https://github.com/zztkm/toolformation/issues")
-		os.Exit(1)
+		return
 	}
 }
