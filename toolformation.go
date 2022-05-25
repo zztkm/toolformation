@@ -34,6 +34,15 @@ func check(name string) int {
 	return cmd.ProcessState.ExitCode()
 }
 
+func getUnameMachine() string {
+	s := fmt.Sprintf("/usr/bin/uname -m")
+	out, err := exec.Command("/bin/bash", "-c", s).Output()
+	if err != nil {
+		return ""
+	}
+	return string(out)
+}
+
 // Install homwbrew
 func (h *Homebrew) Install() {
 	for i := 0; i < len(h.Formula); i++ {
@@ -93,10 +102,19 @@ func (t *ToolFormation) Install() {
 	if t.PackageManager == "homebrew" {
 		if code := check("brew"); code != 0 {
 			fmt.Println("homebrew was not installed")
+			m := getUnameMachine()
+			var c1, c2 string
+			if m == "arm64" {
+				c1 = `echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> $HOME/.zprofile`
+				c2 = `eval "$(/opt/homebrew/bin/brew shellenv)"`
+			} else {
+				c1 = `echo 'eval "$(/usr/local/bin/brew shellenv)"' >> $HOME/.zprofile`
+				c2 = `eval "$(/usr/local/bin/brew shellenv)"`
+			}
 			cmds := []string{
 				`/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`,
-				`echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> $HOME/.zprofile`,
-				`eval "$(/opt/homebrew/bin/brew shellenv)"`,
+				c1,
+				c2,
 			}
 			for i := 0; i < len(cmds); i++ {
 				err := RunCommand(cmds[i])
