@@ -16,7 +16,7 @@ archives:
       - goos: windows
         format: zip
 builds:
-  - main: .
+  - main: ./cmd/toolformation/main.go
     goos:
       - linux
       - windows
