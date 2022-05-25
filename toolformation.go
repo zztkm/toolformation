@@ -92,9 +92,19 @@ func New(path string) (*ToolFormation, error) {
 func (t *ToolFormation) Install() {
 	if t.PackageManager == "homebrew" {
 		if code := check("brew"); code != 0 {
-			color.Red("homebrew was not installed")
-			color.Blue("See: https://brew.sh/")
-			return
+			fmt.Println("homebrew was not installed")
+			cmds := []string{
+				`/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`,
+				`echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> $HOME/.zprofile`,
+				`eval "$(/opt/homebrew/bin/brew shellenv)"`,
+			}
+			for i := 0; i < len(cmds); i++ {
+				err := RunCommand(cmds[i])
+				if err != nil {
+					color.Red("Failed to install homebrew")
+					return
+				}
+			}
 		}
 		t.Homebrew.Install()
 	} else {
