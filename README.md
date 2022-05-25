@@ -5,18 +5,18 @@ ToolFormation は自分のPCにインストールするツール類をコード�
 ```yaml
 package-manager: homebrew
 homebrew:
-	formula:
-		- node
-		- r
-		- pyenv
-	cask:
-		- visual-studio-code
-		- rstudio
-		- iterm2
+    formula:
+        - node
+        - r
+        - pyenv
+    cask:
+        - visual-studio-code
+        - rstudio
+        - iterm2
 
 visual-studio-code:
-	extension:
-		- golang.Go
-		- ms-python.python
-		- ms-python.vscode-pylance
+    extension:
+        - golang.Go
+        - ms-python.python
+        - ms-python.vscode-pylance
 ```
