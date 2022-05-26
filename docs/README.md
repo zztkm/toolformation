@@ -1,6 +1,8 @@
 # ToolFormation
 
-ToolFormation は自分のPCにインストールするツール類をコードで定義することで管理することができます
+**ToolFormation in the early development phase!**
+
+ToolFormation manages the tools used on your machine by defining them in code !
 
 ```yaml
 package-manager: homebrew
@@ -14,6 +16,7 @@ homebrew:
         - rstudio
         - iterm2
 
+# unimplemented
 visual-studio-code:
     extension:
         - golang.Go

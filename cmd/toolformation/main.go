@@ -1,34 +1,74 @@
 package main
 
 import (
-	"flag"
-	"fmt"
-	"log"
+	"os"
 
+	"github.com/goark/errs"
+	"github.com/spf13/cobra"
 	"github.com/zztkm/toolformation"
 )
 
-const (
-	name    = "taskformation"
-	version = "0.1.0"
-)
+var toolFormaitonConfigFile string
 
-var (
-	versionFlag = flag.Bool("version", false, "print version")
-)
+// rootCmd represents the base command when called without any subcommands
+var rootCmd = &cobra.Command{
+	Use:   "toolformation",
+	Short: "A brief description of your application",
+	Long: `A longer description that spans multiple lines and likely contains
+examples and usage of using your application. For example:
 
-// TODO: いずれ cobra かなんか使ったCLIにする1
-func main() {
-	flag.Parse()
+Cobra is a CLI library for Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.`,
+	// Uncomment the following line if your bare application
+	// has an action associated with it:
+	// Run: func(cmd *cobra.Command, args []string) { },
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return execute()
+	},
+}
 
-	if *versionFlag {
-		fmt.Printf("%s %s", name, version)
-		return
+func init() {
+	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.Flags().StringVarP(&toolFormaitonConfigFile, "config", "c", "", "ToolFormation config file path")
+	rootCmd.Version = "0.4.0"
+}
+
+func execute() error {
+	var c *toolformation.Config
+	var err error
+	if toolFormaitonConfigFile == "" {
+		c, err = toolformation.ParseDefaultConfig()
+	} else {
+		c, err = toolformation.ReadFile(toolFormaitonConfigFile)
 	}
-
-	t, err := toolformation.New("ToolFormation.yml")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	t.Install()
+
+	m := c.NewPackageManager()
+	if m == nil {
+		return errs.New("Package manager not specified")
+	}
+
+	toolformation.CreateCache(c)
+	cc, err := toolformation.ReadCache()
+	if err != nil {
+		return err
+	}
+
+	// 未実装の差分チェック
+	c.DifferenceCheck(cc)
+
+	m.Install()
+
+	toolformation.UpdateCache(c)
+	return nil
+}
+
+func main() {
+	err := rootCmd.Execute()
+	if err != nil {
+		os.Exit(1)
+	}
 }
