@@ -1,4 +1,4 @@
-package toolformation
+package internal
 
 import (
 	"context"

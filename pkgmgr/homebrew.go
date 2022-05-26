@@ -1,10 +1,11 @@
-package toolformation
+package pkgmgr
 
 import (
 	"fmt"
 
 	"github.com/fatih/color"
 	"github.com/goark/errs"
+	"github.com/zztkm/toolformation/internal"
 )
 
 // Homebrew
@@ -14,7 +15,7 @@ type Homebrew struct {
 }
 
 func InstallHomebrew() error {
-	m := getUnameMachine()
+	m := internal.GetUnameMachine()
 	var c1, c2 string
 	if m == "arm64" {
 		c1 = `echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> $HOME/.zprofile`
@@ -29,7 +30,7 @@ func InstallHomebrew() error {
 		c2,
 	}
 	for i := 0; i < len(cmds); i++ {
-		err := RunCommand(cmds[i])
+		err := internal.RunCommand(cmds[i])
 		if err != nil {
 			color.Red("Failed to install homebrew")
 			return err
@@ -39,8 +40,8 @@ func InstallHomebrew() error {
 }
 
 // Install homwbrew
-func (h *Homebrew) Install() error {
-	if code := check("brew"); code != 0 {
+func (h Homebrew) Install() error {
+	if code := internal.Check("brew"); code != 0 {
 		fmt.Println("homebrew was not installed")
 		err := InstallHomebrew()
 		if err != nil {
@@ -51,7 +52,7 @@ func (h *Homebrew) Install() error {
 	// Install formula
 	for i := 0; i < len(h.Formula); i++ {
 		cmd := fmt.Sprintf("brew install %s", h.Formula[i])
-		err := RunCommand(cmd)
+		err := internal.RunCommand(cmd)
 		if err != nil {
 			fmt.Printf("Installation of %s[formula] failed\n", h.Formula[i])
 			fmt.Println(err)
@@ -61,7 +62,7 @@ func (h *Homebrew) Install() error {
 	// Install cask
 	for i := 0; i < len(h.Cask); i++ {
 		cmd := fmt.Sprintf("brew install --cask %s", h.Cask[i])
-		err := RunCommand(cmd)
+		err := internal.RunCommand(cmd)
 		if err != nil {
 			fmt.Printf("Installation of %s[cask] failed\n", h.Cask[i])
 			fmt.Println(err)
@@ -71,14 +72,14 @@ func (h *Homebrew) Install() error {
 }
 
 // Uninstall homwbrew
-func (h *Homebrew) Uninstall() error {
-	if code := check("brew"); code != 0 {
+func (h Homebrew) Uninstall() error {
+	if code := internal.Check("brew"); code != 0 {
 		return errs.New("homebrew was not installed")
 	}
 
 	for i := 0; i < len(h.Formula); i++ {
 		cmd := fmt.Sprintf("brew uninstall %s", h.Formula[i])
-		err := RunCommand(cmd)
+		err := internal.RunCommand(cmd)
 		if err != nil {
 			fmt.Printf("Uninstallation of %s[formula] failed\n", h.Formula[i])
 			fmt.Println(err)
@@ -87,11 +88,15 @@ func (h *Homebrew) Uninstall() error {
 
 	for i := 0; i < len(h.Cask); i++ {
 		cmd := fmt.Sprintf("brew uninstall %s", h.Cask[i])
-		err := RunCommand(cmd)
+		err := internal.RunCommand(cmd)
 		if err != nil {
 			fmt.Printf("Uninstallation of %s[cask] failed\n", h.Cask[i])
 			fmt.Println(err)
 		}
 	}
 	return nil
+}
+
+func (h Homebrew) Upgrade() error {
+	return errs.New("Unimplemented method")
 }
