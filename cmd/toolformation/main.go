@@ -50,7 +50,19 @@ func execute() error {
 	if m == nil {
 		return errs.New("Package manager not specified")
 	}
+
+	toolformation.CreateCache(c)
+	cc, err := toolformation.ReadCache()
+	if err != nil {
+		return err
+	}
+
+	// 未実装の差分チェック
+	c.DifferenceCheck(cc)
+
 	m.Install()
+
+	toolformation.UpdateCache(c)
 	return nil
 }
 

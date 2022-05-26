@@ -18,8 +18,16 @@ type Config struct {
 	Homebrew           `yaml:"homebrew"`
 }
 
-func openFile(path string) (*os.File, error) {
-	return os.Open(path)
+func Write(c *Config, w io.Writer) error {
+	bytes, err := yaml.Marshal(&c)
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(bytes)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Read
@@ -36,6 +44,15 @@ func Read(r io.Reader) (*Config, error) {
 		return nil, errs.Wrap(err)
 	}
 	return &t, nil
+}
+
+func WriteFile(c *Config, path string) error {
+	f, err := createFile(path)
+	defer f.Close()
+	if err != nil {
+		return errs.Wrap(err)
+	}
+	return Write(c, f)
 }
 
 // ReadFile
@@ -62,7 +79,7 @@ func DefaultConfigPath() (string, error) {
 	var fileCheck func(filenames []string) string
 	fileCheck = func(filenames []string) string {
 		for i := 0; i < len(filenames); i++ {
-			if _, err := os.Stat(filenames[i]); err == nil {
+			if fileExists(filenames[i]) {
 				return filenames[i]
 			}
 		}
@@ -98,6 +115,9 @@ func (c *Config) NewPackageManager() PackageManager {
 	}
 }
 
+// 未実装
+func (c *Config) DifferenceCheck(cc *Config) {}
+
 func Install(p PackageManager) error {
 	return p.Install()
 }
@@ -108,4 +128,22 @@ func Uninstall(p PackageManager) error {
 
 func Upgrade(p PackageManager) error {
 	return p.Upgrade()
+}
+
+func createFile(path string) (*os.File, error) {
+	return os.Create(path)
+}
+
+func openFile(path string) (*os.File, error) {
+	return os.Open(path)
+}
+
+func dirExists(path string) bool {
+	f, err := os.Stat(path)
+	return err == nil && f.IsDir()
+}
+
+func fileExists(path string) bool {
+	f, err := os.Stat(path)
+	return err == nil && !f.IsDir()
 }
