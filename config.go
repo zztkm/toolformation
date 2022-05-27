@@ -90,7 +90,7 @@ func DefaultConfigPath() (string, error) {
 	return file, nil
 }
 
-func ParseDefaultConfig() (*Config, error) {
+func ParseDefaultConfigFile() (*Config, error) {
 	p, err := DefaultConfigPath()
 	if err != nil {
 		return nil, err
