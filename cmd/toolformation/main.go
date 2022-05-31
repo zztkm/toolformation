@@ -62,6 +62,15 @@ func execute() error {
 
 	m.Install()
 
+	// code extension
+	// TODO: この辺も設定されていたら実行するみたいないい感じメソッドがほしい
+	if len(c.VSCode.Extension) != 0 {
+		err := c.VSCode.Install()
+		if err != nil {
+			return err
+		}
+	}
+
 	toolformation.UpdateCache(c)
 	return nil
 }

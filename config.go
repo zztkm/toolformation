@@ -16,6 +16,7 @@ var defaultFileNames = []string{"ToolFormation.yml", "ToolFormation.yaml"}
 type Config struct {
 	PackageManagerName string `yaml:"package-manager"`
 	Homebrew           `yaml:"homebrew"`
+	VSCode             `yaml:"visual-studio-code"`
 }
 
 func Write(c *Config, w io.Writer) error {
