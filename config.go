@@ -16,6 +16,7 @@ var defaultFileNames = []string{"ToolFormation.yml", "ToolFormation.yaml"}
 type Config struct {
 	PackageManagerName string `yaml:"package-manager"`
 	Homebrew           `yaml:"homebrew"`
+	Scoop              `yaml:"scoop"`
 }
 
 func Write(c *Config, w io.Writer) error {
@@ -107,6 +108,8 @@ type PackageManager interface {
 func (c *Config) NewPackageManager() PackageManager {
 	if c.PackageManagerName == "homebrew" {
 		return c.Homebrew
+	} else if c.PackageManagerName == "scoop" {
+		return c.Scoop
 	} else {
 		color.HiBlue("Currently only `homebrew` is supported")
 		color.HiBlue("Please send me an issue or pr!")
