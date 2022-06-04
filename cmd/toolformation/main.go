@@ -13,16 +13,8 @@ var toolFormaitonConfigFile string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "toolformation",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+	Short: "Manage your tools",
+	Long:  `ToolFormation manages the tools used on your machine by defining them in code !`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return execute()
 	},
@@ -38,7 +30,7 @@ func execute() error {
 	var c *toolformation.Config
 	var err error
 	if toolFormaitonConfigFile == "" {
-		c, err = toolformation.ParseDefaultConfig()
+		c, err = toolformation.ParseDefaultConfigFile()
 	} else {
 		c, err = toolformation.ReadFile(toolFormaitonConfigFile)
 	}

@@ -16,6 +16,7 @@ var defaultFileNames = []string{"ToolFormation.yml", "ToolFormation.yaml"}
 type Config struct {
 	PackageManagerName string `yaml:"package-manager"`
 	Homebrew           `yaml:"homebrew"`
+	Scoop              `yaml:"scoop"`
 	VSCode             `yaml:"visual-studio-code"`
 }
 
@@ -91,7 +92,7 @@ func DefaultConfigPath() (string, error) {
 	return file, nil
 }
 
-func ParseDefaultConfig() (*Config, error) {
+func ParseDefaultConfigFile() (*Config, error) {
 	p, err := DefaultConfigPath()
 	if err != nil {
 		return nil, err
@@ -108,6 +109,8 @@ type PackageManager interface {
 func (c *Config) NewPackageManager() PackageManager {
 	if c.PackageManagerName == "homebrew" {
 		return c.Homebrew
+	} else if c.PackageManagerName == "scoop" {
+		return c.Scoop
 	} else {
 		color.HiBlue("Currently only `homebrew` is supported")
 		color.HiBlue("Please send me an issue or pr!")
