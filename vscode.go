@@ -12,7 +12,7 @@ type VSCode struct {
 
 func (v VSCode) Install() error {
 	if code := Check("code"); code != 0 {
-		return errs.New("code was not installed")
+		return errs.New("code (vscode) was not installed")
 	}
 
 	// Install formula
